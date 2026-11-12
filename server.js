@@ -287,6 +287,39 @@ function authenticateAdmin(req, res, next) {
 // ==========================================
 // 1. HEALTH & PUBLIC ROUTES
 // ==========================================
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(`<!DOCTYPE html>
+<html>
+<head>
+    <title>ETS2 Mod Guard — Cloud Licensing Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: #1e293b; padding: 40px; border-radius: 16px; border: 1px solid #334155; text-align: center; max-width: 520px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        h1 { color: #38bdf8; font-size: 24px; margin-top: 0; margin-bottom: 8px; }
+        .badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); padding: 6px 16px; border-radius: 9999px; font-size: 14px; font-weight: 600; margin: 16px 0; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 10px #4ade80; }
+        p { color: #94a3b8; font-size: 15px; line-height: 1.6; margin: 10px 0; }
+        .endpoint-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-top: 20px; font-family: monospace; font-size: 13px; color: #38bdf8; text-align: left; }
+        .endpoint-box a { color: #38bdf8; text-decoration: none; }
+        .endpoint-box a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🛡️ ETS2 Mod Guard Cloud Server</h1>
+        <div class="badge"><span class="dot"></span> Online & Operational</div>
+        <p>Private cloud distribution & licensing backend for <strong>Seller Studio</strong> and <strong>Buyer Client</strong>.</p>
+        <div class="endpoint-box">
+            <div>Health API: <a href="/api/health">/api/health</a> [200 OK]</div>
+            <div>Categories: <a href="/api/categories">/api/categories</a></div>
+        </div>
+    </div>
+</body>
+</html>`);
+});
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', service: 'ETS2 Mod Guard Cloud API', timestamp: new Date() });
 });
