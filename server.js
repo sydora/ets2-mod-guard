@@ -511,25 +511,6 @@ app.post('/api/seller/mods/:modId/update', authenticateAdmin, (req, res) => {
     res.json({ success: true, message: 'Mod metadata updated', mod });
 });
 
-    const catalog = loadJson(CATALOG_FILE, []);
-    const mod = catalog.find(m => m.modId.toLowerCase() === modId);
-
-    if (!mod) return res.status(404).json({ success: false, error: 'Mod not found in catalog' });
-
-    if (title) mod.title = title.trim();
-    if (version) mod.version = version.trim();
-    if (author) mod.author = author.trim();
-    if (category) mod.category = category.trim();
-    if (price) mod.price = price.trim();
-    if (description !== undefined) mod.description = description;
-    if (changelog !== undefined) mod.changelog = changelog;
-    mod.updatedAt = new Date().toISOString();
-
-    saveJson(CATALOG_FILE, catalog);
-    createAuditLog('ADMIN', 'MOD', 'UPDATE_MOD_METADATA', mod.status, mod.status, `Updated metadata for ${mod.title}`);
-    res.json({ success: true, message: 'Mod metadata updated', mod });
-});
-
 // Delete Mod
 app.delete('/api/seller/mods/:modId', authenticateAdmin, (req, res) => {
     const modId = req.params.modId.trim().toLowerCase();
