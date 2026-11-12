@@ -178,6 +178,72 @@ function saveJson(filePath, data) {
     }
 }
 
+function normalizeLicense(l) {
+    if (!l || typeof l !== 'object') return null;
+    const licenseKey = (l.licenseKey || l.LicenseKey || '').toString().trim();
+    const customerId = (l.customerId || l.CustomerId || '').toString().trim();
+    const customerName = (l.customerName || l.CustomerName || '').toString().trim();
+    const email = (l.email || l.Email || '').toString().trim();
+    const allowedModIds = Array.isArray(l.allowedModIds) 
+        ? l.allowedModIds 
+        : (Array.isArray(l.AllowedModIds) ? l.AllowedModIds : []);
+    const maxHwidBinds = parseInt(l.maxHwidBinds || l.MaxHwidBinds || 1, 10) || 1;
+    const boundHwid = l.boundHwid !== undefined ? l.boundHwid : (l.BoundHwid !== undefined ? l.BoundHwid : null);
+    const isActive = l.isActive !== undefined ? Boolean(l.isActive) : (l.IsActive !== undefined ? Boolean(l.IsActive) : true);
+    const status = l.status || l.Status || (isActive ? 'Active' : 'Suspended');
+    const suspensionReason = l.suspensionReason || l.SuspensionReason || null;
+    const revocationReason = l.revocationReason || l.RevocationReason || null;
+    const createdAt = l.createdAt || l.CreatedAt || new Date().toISOString();
+    const updatedAt = l.updatedAt || l.UpdatedAt || new Date().toISOString();
+    const lastLoginAt = l.lastLoginAt || l.LastLoginAt || null;
+    const downloadCount = parseInt(l.downloadCount || l.DownloadCount || 0, 10) || 0;
+
+    return {
+        // camelCase
+        customerId,
+        licenseKey,
+        customerName,
+        email,
+        allowedModIds,
+        maxHwidBinds,
+        boundHwid,
+        status,
+        suspensionReason,
+        revocationReason,
+        createdAt,
+        updatedAt,
+        lastLoginAt,
+        downloadCount,
+        isActive,
+
+        // PascalCase (.NET compatibility)
+        CustomerId: customerId,
+        LicenseKey: licenseKey,
+        CustomerName: customerName,
+        Email: email,
+        AllowedModIds: allowedModIds,
+        MaxHwidBinds: maxHwidBinds,
+        BoundHwid: boundHwid,
+        Status: status,
+        SuspensionReason: suspensionReason,
+        RevocationReason: revocationReason,
+        CreatedAt: createdAt,
+        UpdatedAt: updatedAt,
+        LastLoginAt: lastLoginAt,
+        DownloadCount: downloadCount,
+        IsActive: isActive
+    };
+}
+
+function getLicenses() {
+    const raw = loadJson(LICENSES_FILE, []);
+    return raw.map(normalizeLicense).filter(Boolean);
+}
+
+function saveLicenses(licenses) {
+    saveJson(LICENSES_FILE, licenses.map(normalizeLicense).filter(Boolean));
+}
+
 function maskHwid(hwid) {
     if (!hwid || typeof hwid !== 'string') return '(Not yet bound)';
     if (hwid.length <= 10) return hwid.substring(0, 3) + '...';
@@ -259,7 +325,7 @@ app.post('/api/seller/login', (req, res) => {
 app.get('/api/seller/dashboard-stats', authenticateAdmin, (req, res) => {
     const catalog = getCatalog();
     const categories = getCategories();
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const downloads = loadJson(DOWNLOADS_FILE, []);
     const purchases = loadJson(PURCHASES_FILE, []);
 
@@ -384,7 +450,7 @@ app.post('/api/seller/upload', upload.single('file'), (req, res) => {
 // Full Seller Catalog with Customer & Download counts (NO PRICES)
 app.get('/api/seller/catalog', (req, res) => {
     const catalog = getCatalog();
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const downloads = loadJson(DOWNLOADS_FILE, []);
 
     const enriched = catalog.map(m => {
@@ -536,7 +602,7 @@ app.delete('/api/seller/mods/:modId', authenticateAdmin, (req, res) => {
 // Get Entitled Buyers for a Mod
 app.get('/api/seller/mods/:modId/buyers', authenticateAdmin, (req, res) => {
     const modId = req.params.modId.trim().toLowerCase();
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const buyers = licenses.filter(l => l.allowedModIds.length === 0 || l.allowedModIds.map(x => x.toLowerCase()).includes(modId));
 
     res.json({
@@ -557,7 +623,7 @@ app.get('/api/seller/mods/:modId/buyers', authenticateAdmin, (req, res) => {
 // 5. CUSTOMER MANAGEMENT APIS (From Phase 1)
 // ==========================================
 app.get('/api/admin/customer-statistics', authenticateAdmin, (req, res) => {
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const devices = loadJson(DEVICES_FILE, []);
 
     let totalCustomers = licenses.length;
@@ -588,7 +654,7 @@ app.get('/api/admin/customer-statistics', authenticateAdmin, (req, res) => {
 });
 
 app.get('/api/admin/customers', authenticateAdmin, (req, res) => {
-    let licenses = loadJson(LICENSES_FILE, []);
+    let licenses = getLicenses();
     const catalog = loadJson(CATALOG_FILE, []);
     const devices = loadJson(DEVICES_FILE, []);
     const downloads = loadJson(DOWNLOADS_FILE, []);
@@ -750,7 +816,7 @@ app.get('/api/admin/customers/:id/audit-logs', authenticateAdmin, (req, res) => 
 
 app.post('/api/admin/customers/:id/activate', authenticateAdmin, (req, res) => {
     const targetId = req.params.id.trim().toLowerCase();
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => (l.customerId || '').toLowerCase() === targetId);
 
     if (!lic) return res.status(404).json({ success: false, error: 'Customer not found' });
@@ -764,7 +830,7 @@ app.post('/api/admin/customers/:id/activate', authenticateAdmin, (req, res) => {
     lic.isActive = true;
     lic.suspensionReason = null;
     lic.updatedAt = new Date().toISOString();
-    saveJson(LICENSES_FILE, licenses);
+    saveLicenses(licenses);
 
     createAuditLog(req.headers['x-admin-id'], lic.customerId, 'ACTIVATE_LICENSE', prevStatus, 'Active', 'Admin reactivated customer license');
     res.json({ success: true, message: 'License successfully activated', licenseStatus: 'Active' });
@@ -776,7 +842,7 @@ app.post('/api/admin/customers/:id/suspend', authenticateAdmin, (req, res) => {
 
     if (!reason || !reason.trim()) return res.status(400).json({ success: false, error: 'Suspension reason is required' });
 
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => (l.customerId || '').toLowerCase() === targetId);
 
     if (!lic) return res.status(404).json({ success: false, error: 'Customer not found' });
@@ -786,7 +852,7 @@ app.post('/api/admin/customers/:id/suspend', authenticateAdmin, (req, res) => {
     lic.isActive = false;
     lic.suspensionReason = reason.trim();
     lic.updatedAt = new Date().toISOString();
-    saveJson(LICENSES_FILE, licenses);
+    saveLicenses(licenses);
 
     createAuditLog(req.headers['x-admin-id'], lic.customerId, 'SUSPEND_LICENSE', prevStatus, 'Suspended', reason.trim());
     res.json({ success: true, message: 'License suspended successfully', licenseStatus: 'Suspended' });
@@ -798,7 +864,7 @@ app.post('/api/admin/customers/:id/revoke', authenticateAdmin, (req, res) => {
 
     if (!reason || !reason.trim()) return res.status(400).json({ success: false, error: 'Revocation reason is required' });
 
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => (l.customerId || '').toLowerCase() === targetId);
 
     if (!lic) return res.status(404).json({ success: false, error: 'Customer not found' });
@@ -808,7 +874,7 @@ app.post('/api/admin/customers/:id/revoke', authenticateAdmin, (req, res) => {
     lic.isActive = false;
     lic.revocationReason = reason.trim();
     lic.updatedAt = new Date().toISOString();
-    saveJson(LICENSES_FILE, licenses);
+    saveLicenses(licenses);
 
     createAuditLog(req.headers['x-admin-id'], lic.customerId, 'REVOKE_LICENSE', prevStatus, 'Revoked', reason.trim());
     res.json({ success: true, message: 'License permanently revoked', licenseStatus: 'Revoked' });
@@ -816,7 +882,7 @@ app.post('/api/admin/customers/:id/revoke', authenticateAdmin, (req, res) => {
 
 app.post('/api/admin/customers/:id/reset-device', authenticateAdmin, (req, res) => {
     const targetId = req.params.id.trim().toLowerCase();
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => (l.customerId || '').toLowerCase() === targetId);
 
     if (!lic) return res.status(404).json({ success: false, error: 'Customer not found' });
@@ -824,7 +890,7 @@ app.post('/api/admin/customers/:id/reset-device', authenticateAdmin, (req, res) 
     const oldHwid = lic.boundHwid;
     lic.boundHwid = null;
     lic.updatedAt = new Date().toISOString();
-    saveJson(LICENSES_FILE, licenses);
+    saveLicenses(licenses);
 
     const devices = loadJson(DEVICES_FILE, []);
     devices.forEach(d => {
@@ -837,16 +903,61 @@ app.post('/api/admin/customers/:id/reset-device', authenticateAdmin, (req, res) 
 });
 
 // ==========================================
-// 6. BUYER LOGIN & SECURE MOD DOWNLOAD
+// 6. SELLER LICENSE MANAGEMENT ENDPOINTS
+// ==========================================
+app.get('/api/seller/licenses', authenticateAdmin, (req, res) => {
+    const licenses = getLicenses();
+    res.json(licenses);
+});
+
+app.post('/api/seller/create-license', authenticateAdmin, (req, res) => {
+    const raw = req.body;
+    if (!raw) return res.status(400).json({ success: false, error: 'License data required' });
+
+    const normalized = normalizeLicense(raw);
+    if (!normalized || !normalized.licenseKey) {
+        return res.status(400).json({ success: false, error: 'License key is required' });
+    }
+
+    let licenses = getLicenses();
+    const idx = licenses.findIndex(l =>
+        (normalized.customerId && l.customerId.toLowerCase() === normalized.customerId.toLowerCase()) ||
+        (l.licenseKey.toLowerCase() === normalized.licenseKey.toLowerCase())
+    );
+
+    if (idx >= 0) {
+        const existing = licenses[idx];
+        licenses[idx] = normalizeLicense({
+            ...existing,
+            ...normalized,
+            boundHwid: (normalized.boundHwid !== undefined && normalized.boundHwid !== null) ? normalized.boundHwid : existing.boundHwid,
+            updatedAt: new Date().toISOString()
+        });
+        console.log(`[SELLER] Updated license ${normalized.licenseKey} for ${normalized.customerName} (${normalized.customerId})`);
+    } else {
+        licenses.push(normalized);
+        console.log(`[SELLER] Created new license ${normalized.licenseKey} for ${normalized.customerName} (${normalized.customerId})`);
+    }
+
+    saveLicenses(licenses);
+    res.json({ success: true, license: normalized });
+});
+
+// ==========================================
+// 7. BUYER LOGIN & SECURE MOD DOWNLOAD
 // ==========================================
 app.post('/api/buyer/login', (req, res) => {
     const { licenseKey, hwid } = req.body;
-    if (!licenseKey) return res.status(400).json({ success: false, error: 'License key is required.' });
+    if (!licenseKey || !licenseKey.trim()) {
+        return res.status(400).json({ success: false, error: 'License key is required.' });
+    }
 
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => l.licenseKey.toLowerCase() === licenseKey.trim().toLowerCase());
 
-    if (!lic) return res.status(404).json({ success: false, error: 'Invalid license key. Please check the code provided by your seller.' });
+    if (!lic) {
+        return res.status(404).json({ success: false, error: 'Invalid license key. Please check the code provided by your seller.' });
+    }
 
     const currentStatus = (lic.status || (lic.isActive ? 'Active' : 'Suspended')).toLowerCase();
 
@@ -860,14 +971,16 @@ app.post('/api/buyer/login', (req, res) => {
         return res.status(403).json({ success: false, error: `Your license has been permanently REVOKED.${reason} Access is denied.` });
     }
 
-    if (!lic.isActive) return res.status(403).json({ success: false, error: 'License is inactive or disabled.' });
+    if (!lic.isActive) {
+        return res.status(403).json({ success: false, error: 'License is inactive or disabled.' });
+    }
 
     // HWID Binding
     const devices = loadJson(DEVICES_FILE, []);
     if (!lic.boundHwid) {
-        lic.boundHwid = hwid;
+        lic.boundHwid = hwid || null;
         lic.lastLoginAt = new Date().toISOString();
-        saveJson(LICENSES_FILE, licenses);
+        saveLicenses(licenses);
 
         if (hwid) {
             devices.push({
@@ -882,16 +995,16 @@ app.post('/api/buyer/login', (req, res) => {
             saveJson(DEVICES_FILE, devices);
         }
         console.log(`[BUYER] License ${licenseKey} locked to HWID: ${maskHwid(hwid)}`);
-    } else if (hwid && lic.boundHwid !== hwid) {
+    } else if (hwid && lic.boundHwid.toLowerCase() !== hwid.toLowerCase()) {
         return res.status(403).json({
             success: false,
-            error: `HWID Mismatch! This license is bound to another PC (Bound: ${maskHwid(lic.boundHwid)}). Please contact your mod seller to transfer your license.`
+            error: `HWID Mismatch! This license is locked to another PC (Bound HWID: ${maskHwid(lic.boundHwid)}). Please contact your mod seller to transfer your license.`
         });
     } else {
         lic.lastLoginAt = new Date().toISOString();
-        saveJson(LICENSES_FILE, licenses);
+        saveLicenses(licenses);
 
-        const dev = devices.find(d => (d.customerId || '').toLowerCase() === (lic.customerId || '').toLowerCase() && d.rawHwid === hwid);
+        const dev = devices.find(d => (d.customerId || '').toLowerCase() === (lic.customerId || '').toLowerCase() && (d.rawHwid || '').toLowerCase() === (hwid || '').toLowerCase());
         if (dev) {
             dev.lastSeen = new Date().toISOString();
             saveJson(DEVICES_FILE, devices);
@@ -901,11 +1014,13 @@ app.post('/api/buyer/login', (req, res) => {
     // Filter purchased AND published AND uploaded mods only (NO PRICES)
     const catalog = getCatalog();
     const categories = getCategories();
-    const buyerMods = catalog.filter(m =>
-        (m.isPublished !== false && (m.status || 'Published').toLowerCase() === 'published') &&
-        (m.uploadStatus === 'UPLOADED') &&
-        (lic.allowedModIds.length === 0 || lic.allowedModIds.map(x => x.toLowerCase()).includes(m.modId.toLowerCase()))
-    );
+    const allowed = lic.allowedModIds || [];
+    const buyerMods = catalog.filter(m => {
+        const isPub = m.isPublished !== false && (m.status || 'Published').toLowerCase() === 'published';
+        const isUploaded = m.uploadStatus === 'UPLOADED' || (fs.existsSync(path.join(MODS_DIR, `${m.modId}.guard`)) && fs.statSync(path.join(MODS_DIR, `${m.modId}.guard`)).size > 0);
+        const isAllowed = allowed.length === 0 || allowed.map(x => x.toLowerCase()).includes(m.modId.toLowerCase());
+        return isPub && isUploaded && isAllowed;
+    });
 
     res.json({
         success: true,
@@ -921,7 +1036,7 @@ app.get('/api/buyer/download', (req, res) => {
     const { modId, licenseKey, hwid } = req.query;
     if (!modId || !licenseKey) return res.status(400).send('Missing modId or licenseKey');
 
-    const licenses = loadJson(LICENSES_FILE, []);
+    const licenses = getLicenses();
     const lic = licenses.find(l => l.licenseKey.toLowerCase() === licenseKey.trim().toLowerCase());
 
     if (!lic) return res.status(404).send('Invalid license key');
@@ -931,8 +1046,9 @@ app.get('/api/buyer/download', (req, res) => {
     if (status === 'revoked') return res.status(403).send('License has been revoked.');
     if (!lic.isActive) return res.status(403).send('License is inactive.');
 
-    if (lic.boundHwid && hwid && lic.boundHwid !== hwid) return res.status(403).send('HWID Mismatch');
-    if (lic.allowedModIds.length > 0 && !lic.allowedModIds.map(x => x.toLowerCase()).includes(modId.toLowerCase())) return res.status(403).send('You have not purchased this mod.');
+    if (lic.boundHwid && hwid && lic.boundHwid.toLowerCase() !== hwid.toLowerCase()) return res.status(403).send('HWID Mismatch');
+    const allowed = lic.allowedModIds || [];
+    if (allowed.length > 0 && !allowed.map(x => x.toLowerCase()).includes(modId.toLowerCase())) return res.status(403).send('You have not purchased this mod.');
 
     const filePath = path.join(MODS_DIR, `${modId}.guard`);
     if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
@@ -942,7 +1058,6 @@ app.get('/api/buyer/download', (req, res) => {
     const catalog = getCatalog();
     const modMeta = catalog.find(m => m.modId.toLowerCase() === modId.toLowerCase());
 
-    // Check if mod is delisted
     if (modMeta && modMeta.status && modMeta.status.toLowerCase() === 'delisted') {
         return res.status(403).send('This mod package is currently delisted by the creator.');
     }
@@ -962,7 +1077,7 @@ app.get('/api/buyer/download', (req, res) => {
     saveJson(DOWNLOADS_FILE, downloads);
 
     lic.downloadCount = (lic.downloadCount || 0) + 1;
-    saveJson(LICENSES_FILE, licenses);
+    saveLicenses(licenses);
 
     console.log(`[BUYER] Delivered mod ${modId}.guard to ${lic.customerId} (${lic.customerName})`);
     res.download(filePath, `${modId}.guard`);
