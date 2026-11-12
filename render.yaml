@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ets2-mod-guard-cloud
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: ADMIN_KEY
+        value: ETS2_ADMIN_SECRET_2026
+    disk:
+      name: mod-storage
+      mountPath: /app/storage
+      sizeGB: 10

@@ -1,0 +1,13 @@
+{
+  "name": "ets2-mod-guard-server",
+  "version": "1.0.0",
+  "description": "Cloud Licensing & Mod Distribution Server for Euro Truck Simulator 2",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}
