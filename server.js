@@ -37,7 +37,7 @@ const PREDEFINED_MODS = [
     // 1. IBS MODS (8)
     { modId: "ibs_volvo_9600", title: "Volvo 9600", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibs_volvo_9600_skin", title: "Volvo 9600 Skin (Paid)", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "ibs_volvo_9600_bundle", title: "Volvo 9600 + Skin Bundle", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "ibs_volvo_9600_bundle", title: "Volvo 9600 + Skin Bundle", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1hnf_CM1iGjZL3RUC59bOVA72no5WMql4/view?usp=sharing", fileSizeBytes: 1004390991, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "ibs_mercedes_shd_2436", title: "Mercedes SHD 2436 (15 m)", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibs_scania_metrolink_s8", title: "Scania Metrolink Sector 8 Sleeper", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibs_volvo_shell_sleeper", title: "Volvo Shell Sleeper Pack", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
@@ -47,7 +47,7 @@ const PREDEFINED_MODS = [
     // 2. LYNX MODS (4)
     { modId: "lynx_scania_metrolink", title: "Scania Metrolink", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "lynx_veera_pack", title: "Lynx Veera Pack", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "lynx_prakash_vega", title: "Prakash Vega", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "lynx_prakash_vega", title: "Prakash Vega", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1E-5-lomniM1DJTYz_DjMpfbx2G4__eqx/view?usp=sharing", fileSizeBytes: 685826681, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "lynx_volvo_9400", title: "Volvo 9400 Semi Sleeper", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
 
     // 3. RVK GARAGE (2)
@@ -95,12 +95,13 @@ function getCatalog() {
                 description: 'Predefined ETS2 mod package',
                 changelog: 'Initial predefined release',
                 targetScsFileName: `${pre.modId}.scs`,
-                fileSizeBytes: 0,
-                status: 'Draft',
-                uploadStatus: 'NOT UPLOADED',
-                packageStatus: 'No Package File',
+                fileSizeBytes: pre.fileSizeBytes || 0,
+                status: pre.status || 'Draft',
+                uploadStatus: pre.uploadStatus || 'NOT UPLOADED',
+                packageStatus: pre.packageStatus || 'No Package File',
                 downloadCount: 0,
-                isPublished: false,
+                isPublished: pre.isPublished || false,
+                googleDriveUrl: pre.googleDriveUrl || '',
                 uploadedAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             });
@@ -110,6 +111,15 @@ function getCatalog() {
             if (!existing.category) existing.category = pre.category;
             if (!existing.categoryOrder) existing.categoryOrder = pre.categoryOrder;
             if (!existing.ets2Compatibility) existing.ets2Compatibility = pre.ets2Compatibility;
+            if (pre.googleDriveUrl && (!existing.googleDriveUrl || !existing.googleDriveUrl.trim())) {
+                existing.googleDriveUrl = pre.googleDriveUrl;
+                existing.uploadStatus = 'UPLOADED';
+                existing.packageStatus = 'Google Drive Cloud Package';
+                if (pre.fileSizeBytes) existing.fileSizeBytes = pre.fileSizeBytes;
+                existing.status = 'Published';
+                existing.isPublished = true;
+                modified = true;
+            }
         }
     }
 
@@ -246,8 +256,45 @@ function normalizeLicense(l) {
     };
 }
 
+const PREDEFINED_LICENSES = [
+    {
+        customerId: "CUST-1001",
+        licenseKey: "INDO-2026-CUST1001-094595",
+        customerName: "kalyyan",
+        email: "cust-1001@buyer.com",
+        allowedModIds: ["ibs_volvo_9600_bundle", "ajin_prakash_capella"],
+        maxHwidBinds: 1,
+        boundHwid: null,
+        status: "Active",
+        isActive: true,
+        createdAt: "2026-11-13T06:13:20.000Z",
+        updatedAt: "2026-11-13T09:48:51.000Z",
+        lastLoginAt: null,
+        downloadCount: 0
+    },
+    {
+        customerId: "CUST-1002",
+        licenseKey: "INDO-2026-CUST1002-563DE3",
+        customerName: "Yaswanth YTH",
+        email: "cust-1002@buyer.com",
+        allowedModIds: ["lynx_prakash_vega"],
+        maxHwidBinds: 1,
+        boundHwid: null,
+        status: "Active",
+        isActive: true,
+        createdAt: "2026-11-13T06:31:40.000Z",
+        updatedAt: "2026-11-13T06:31:40.000Z",
+        lastLoginAt: null,
+        downloadCount: 0
+    }
+];
+
 function getLicenses() {
-    const raw = loadJson(LICENSES_FILE, []);
+    let raw = loadJson(LICENSES_FILE, []);
+    if (!raw || raw.length === 0) {
+        raw = PREDEFINED_LICENSES;
+        saveJson(LICENSES_FILE, raw);
+    }
     return raw.map(normalizeLicense).filter(Boolean);
 }
 
