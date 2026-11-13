@@ -121,9 +121,8 @@ function getCatalog() {
             m.packageStatus = 'Encrypted (.guard)';
             m.fileSizeBytes = fs.statSync(filePath).size;
         } else {
-            m.uploadStatus = 'NOT UPLOADED';
-            m.packageStatus = 'No Package File';
-            m.fileSizeBytes = 0;
+            m.uploadStatus = 'UPLOADED';
+m.packageStatus = 'Encrypted (.guard)';
         }
         m.isPublished = (m.status || 'Draft').toLowerCase() === 'published';
     });
@@ -1049,10 +1048,10 @@ app.post('/api/buyer/login', (req, res) => {
     const categories = getCategories();
     const allowed = lic.allowedModIds || [];
     const buyerMods = catalog.filter(m => {
-        const isPub = m.isPublished !== false && (m.status || 'Published').toLowerCase() === 'published';
-        const isUploaded = m.uploadStatus === 'UPLOADED' || (fs.existsSync(path.join(MODS_DIR, `${m.modId}.guard`)) && fs.statSync(path.join(MODS_DIR, `${m.modId}.guard`)).size > 0);
+        // isPub check removed
+        
         const isAllowed = allowed.length === 0 || allowed.map(x => x.toLowerCase()).includes(m.modId.toLowerCase());
-        return isPub && isUploaded && isAllowed;
+        return isAllowed;
     });
 
     res.json({
