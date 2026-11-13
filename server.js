@@ -113,17 +113,29 @@ function getCatalog() {
         }
     }
 
-    // Dynamic file detection on disk
+    // Dynamic file detection on disk & Google Drive links
     catalog.forEach(m => {
         const filePath = path.join(MODS_DIR, `${m.modId}.guard`);
-        if (fs.existsSync(filePath) && fs.statSync(filePath).size > 0) {
+        const hasGdrive = m.googleDriveUrl && m.googleDriveUrl.trim().length > 0;
+        const hasFile = fs.existsSync(filePath) && fs.statSync(filePath).size > 0;
+
+        if (hasFile) {
             m.uploadStatus = 'UPLOADED';
             m.packageStatus = 'Encrypted (.guard)';
             m.fileSizeBytes = fs.statSync(filePath).size;
-        } else {
+        } else if (hasGdrive) {
             m.uploadStatus = 'UPLOADED';
-m.packageStatus = 'Encrypted (.guard)';
+            m.packageStatus = 'Google Drive Cloud Package';
+            if (!m.fileSizeBytes || m.fileSizeBytes === 0) m.fileSizeBytes = 500 * 1024 * 1024;
+        } else if (m.fileSizeBytes > 0 && m.uploadStatus === 'UPLOADED') {
+            m.uploadStatus = 'UPLOADED';
+            m.packageStatus = 'Encrypted (.guard)';
+        } else {
+            m.uploadStatus = 'NOT UPLOADED';
+            m.packageStatus = 'No Package File';
+            m.fileSizeBytes = 0;
         }
+        if (!m.status) m.status = (m.uploadStatus === 'UPLOADED') ? 'Published' : 'Draft';
         m.isPublished = (m.status || 'Draft').toLowerCase() === 'published';
     });
 
@@ -435,6 +447,7 @@ app.post('/api/seller/upload', upload.single('file'), (req, res) => {
     const compatibility = req.headers['x-mod-compatibility'] || req.body.ets2Compatibility || '1.48 - 1.53+';
     let description = req.headers['x-mod-description'] ? Buffer.from(req.headers['x-mod-description'], 'base64').toString('utf8') : (req.body.description || '');
     let changelog = req.headers['x-mod-changelog'] ? Buffer.from(req.headers['x-mod-changelog'], 'base64').toString('utf8') : (req.body.changelog || 'Initial release');
+    let googleDriveUrl = req.headers['x-mod-google-drive-url'] || req.body.googleDriveUrl || '';
 
     const categories = getCategories();
     const cat = categories.find(c => c.name.toLowerCase() === category.toLowerCase() || c.categoryId.toLowerCase() === category.toLowerCase());
@@ -460,6 +473,7 @@ app.post('/api/seller/upload', upload.single('file'), (req, res) => {
         uploadStatus: 'UPLOADED',
         packageStatus: 'Encrypted (.guard)',
         ets2Compatibility: compatibility,
+        googleDriveUrl: googleDriveUrl || (existingIdx >= 0 ? (catalog[existingIdx].googleDriveUrl || '') : ''),
         isPublished: isPub,
         downloadCount: existingIdx >= 0 ? (catalog[existingIdx].downloadCount || 0) : 0,
         uploadedAt: existingIdx >= 0 ? catalog[existingIdx].uploadedAt : new Date().toISOString(),
@@ -584,15 +598,47 @@ app.post('/api/seller/mods/:modId/unpublish', authenticateAdmin, (req, res) => {
     res.json({ success: true, message: 'Mod delisted from catalog', mod });
 });
 
-// Edit Mod Metadata (NO PRICES)
+// Edit or Register Mod Metadata (Upsert supported - NO PRICES)
 app.post('/api/seller/mods/:modId/update', authenticateAdmin, (req, res) => {
     const modId = req.params.modId.trim().toLowerCase();
     const { title, version, author, category, categoryId, ets2Compatibility, description, changelog } = req.body;
 
     const catalog = getCatalog();
-    const mod = catalog.find(m => m.modId.toLowerCase() === modId);
+    let mod = catalog.find(m => m.modId.toLowerCase() === modId);
+    let isNew = false;
 
-    if (!mod) return res.status(404).json({ success: false, error: 'Mod not found in catalog' });
+    if (!mod) {
+        const categories = getCategories();
+        const cat = categories.find(c => (c.name || '').toLowerCase() === (category || '').toLowerCase() || (c.categoryId || '').toLowerCase() === (categoryId || '').toLowerCase());
+        const catName = cat ? cat.name : (category || 'IBS MODS');
+        const catId = cat ? cat.categoryId : (categoryId || 'cat_ibs');
+        const catOrder = cat ? cat.order : 1;
+
+        mod = {
+            modId: modId,
+            title: title ? title.trim() : modId,
+            version: version ? version.trim() : '1.0.0',
+            author: author ? author.trim() : 'Official Creator',
+            category: catName,
+            categoryId: catId,
+            categoryOrder: catOrder,
+            description: description || 'Mod package',
+            changelog: changelog || 'Initial release',
+            targetScsFileName: `${modId}.scs`,
+            fileSizeBytes: Number(req.body.fileSizeBytes) || 524288000,
+            uploadStatus: req.body.uploadStatus || 'UPLOADED',
+            packageStatus: req.body.packageStatus || 'Google Drive Cloud Package',
+            ets2Compatibility: ets2Compatibility ? ets2Compatibility.trim() : '1.48 - 1.53+',
+            googleDriveUrl: req.body.googleDriveUrl ? req.body.googleDriveUrl.trim() : '',
+            isPublished: req.body.status ? req.body.status.toLowerCase() === 'published' : true,
+            status: req.body.status || 'Published',
+            downloadCount: 0,
+            uploadedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        catalog.push(mod);
+        isNew = true;
+    }
 
     if (title) mod.title = title.trim();
     if (version) mod.version = version.trim();
@@ -602,11 +648,19 @@ app.post('/api/seller/mods/:modId/update', authenticateAdmin, (req, res) => {
     if (ets2Compatibility) mod.ets2Compatibility = ets2Compatibility.trim();
     if (description !== undefined) mod.description = description;
     if (changelog !== undefined) mod.changelog = changelog;
+    if (req.body.googleDriveUrl !== undefined) mod.googleDriveUrl = req.body.googleDriveUrl.trim();
+    if (req.body.fileSizeBytes !== undefined && Number(req.body.fileSizeBytes) > 0) mod.fileSizeBytes = Number(req.body.fileSizeBytes);
+    if (req.body.uploadStatus) mod.uploadStatus = req.body.uploadStatus;
+    if (req.body.packageStatus) mod.packageStatus = req.body.packageStatus;
+    if (req.body.status) {
+        mod.status = req.body.status;
+        mod.isPublished = req.body.status.toLowerCase() === 'published';
+    }
     mod.updatedAt = new Date().toISOString();
 
     saveJson(CATALOG_FILE, catalog);
-    createAuditLog('ADMIN', 'MOD', 'UPDATE_MOD_METADATA', mod.status, mod.status, `Updated metadata for ${mod.title}`);
-    res.json({ success: true, message: 'Mod metadata updated', mod });
+    createAuditLog('ADMIN', 'MOD', isNew ? 'CREATE_MOD_WITH_GDRIVE' : 'UPDATE_MOD_METADATA', mod.status, mod.status, `${isNew ? 'Created new' : 'Updated'} mod ${mod.title} (${mod.modId})`);
+    res.json({ success: true, message: isNew ? 'Mod created & registered in catalog' : 'Mod metadata updated', mod });
 });
 
 // Delete Mod
@@ -934,6 +988,57 @@ app.post('/api/admin/customers/:id/reset-device', authenticateAdmin, (req, res) 
     res.json({ success: true, message: 'Device activation reset successfully.' });
 });
 
+// Admin & Seller Action: Delete Customer Permanently
+const deleteCustomerHandler = (req, res) => {
+    const targetId = (req.params.id || req.body.customerId || req.body.id || req.query.customerId || '').trim().toLowerCase();
+    if (!targetId) return res.status(400).json({ success: false, error: 'Customer ID or key required' });
+
+    let licenses = getLicenses();
+    const beforeCount = licenses.length;
+    const removedCust = licenses.find(l => 
+        (l.customerId || '').toLowerCase() === targetId ||
+        (l.licenseKey || '').toLowerCase() === targetId
+    );
+
+    licenses = licenses.filter(l => 
+        (l.customerId || '').toLowerCase() !== targetId &&
+        (l.licenseKey || '').toLowerCase() !== targetId
+    );
+
+    if (licenses.length === beforeCount && !removedCust) {
+        return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    saveLicenses(licenses);
+
+    // Also remove associated devices and purchases
+    const custIdStr = removedCust ? (removedCust.customerId || targetId) : targetId;
+    let devices = loadJson(DEVICES_FILE, []);
+    devices = devices.filter(d => (d.customerId || '').toLowerCase() !== custIdStr.toLowerCase());
+    saveJson(DEVICES_FILE, devices);
+
+    let purchases = loadJson(PURCHASES_FILE, []);
+    purchases = purchases.filter(p => (p.customerId || '').toLowerCase() !== custIdStr.toLowerCase());
+    saveJson(PURCHASES_FILE, purchases);
+
+    createAuditLog(
+        req.headers['x-admin-id'] || 'ADMIN', 
+        custIdStr, 
+        'DELETE_CUSTOMER', 
+        'Active', 
+        'Deleted', 
+        'Permanently deleted customer and associated license/device records'
+    );
+
+    console.log(`[SELLER] Deleted customer ${custIdStr}`);
+    return res.json({ success: true, message: `Customer ${custIdStr} permanently deleted.` });
+};
+
+app.delete('/api/admin/customers/:id', authenticateAdmin, deleteCustomerHandler);
+app.post('/api/admin/customers/:id/delete', authenticateAdmin, deleteCustomerHandler);
+app.delete('/api/seller/licenses/:key', authenticateAdmin, deleteCustomerHandler);
+app.post('/api/seller/licenses/delete', authenticateAdmin, deleteCustomerHandler);
+
 // ==========================================
 // 6. SELLER LICENSE MANAGEMENT ENDPOINTS
 // ==========================================
@@ -1043,15 +1148,23 @@ app.post('/api/buyer/login', (req, res) => {
         }
     }
 
-    // Filter purchased AND published AND uploaded mods only (NO PRICES)
+    // Filter purchased mods for this buyer (NO PRICES)
     const catalog = getCatalog();
     const categories = getCategories();
-    const allowed = lic.allowedModIds || [];
+    const allowed = (lic.allowedModIds || []).map(x => (x || '').toString().toLowerCase());
     const buyerMods = catalog.filter(m => {
-        // isPub check removed
-        
-        const isAllowed = allowed.length === 0 || allowed.map(x => x.toLowerCase()).includes(m.modId.toLowerCase());
-        return isAllowed;
+        const modIdLower = (m.modId || '').toLowerCase();
+        // 1. If mod is explicitly assigned to this customer in their license: ALWAYS deliver it!
+        if (allowed.length > 0 && allowed.includes(modIdLower)) {
+            return true;
+        }
+        // 2. If all-mods license (allowed is empty): deliver all published active mods that have uploaded files or drive links
+        if (allowed.length === 0) {
+            const isPub = m.isPublished !== false && (m.status || 'Published').toLowerCase() === 'published';
+            const isAvailable = m.uploadStatus === 'UPLOADED' && (m.fileSizeBytes > 0 || (m.googleDriveUrl && m.googleDriveUrl.trim()));
+            return isPub && isAvailable;
+        }
+        return false;
     });
 
     res.json({
@@ -1082,16 +1195,39 @@ app.get('/api/buyer/download', (req, res) => {
     const allowed = lic.allowedModIds || [];
     if (allowed.length > 0 && !allowed.map(x => x.toLowerCase()).includes(modId.toLowerCase())) return res.status(403).send('You have not purchased this mod.');
 
-    const filePath = path.join(MODS_DIR, `${modId}.guard`);
-    if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
-        return res.status(404).send('Mod package file not yet uploaded by creator.');
-    }
-
     const catalog = getCatalog();
     const modMeta = catalog.find(m => m.modId.toLowerCase() === modId.toLowerCase());
 
     if (modMeta && modMeta.status && modMeta.status.toLowerCase() === 'delisted') {
         return res.status(403).send('This mod package is currently delisted by the creator.');
+    }
+
+    // Direct Google Drive download redirect if configured:
+    if (modMeta && modMeta.googleDriveUrl && modMeta.googleDriveUrl.trim()) {
+        const downloads = loadJson(DOWNLOADS_FILE, []);
+        downloads.push({
+            downloadId: `DL-${1000 + downloads.length + 1}`,
+            customerId: lic.customerId,
+            modId: modId,
+            modName: modMeta ? modMeta.title : modId,
+            packageVersion: modMeta ? modMeta.version : '1.0.0',
+            deviceId: maskHwid(hwid || lic.boundHwid),
+            timestamp: new Date().toISOString(),
+            status: 'Success',
+            result: 'Redirected to Google Drive High-Speed Stream'
+        });
+        saveJson(DOWNLOADS_FILE, downloads);
+
+        lic.downloadCount = (lic.downloadCount || 0) + 1;
+        saveLicenses(licenses);
+
+        console.log(`[BUYER] Redirecting ${lic.customerId} to Google Drive for mod ${modId}`);
+        return res.redirect(modMeta.googleDriveUrl.trim());
+    }
+
+    const filePath = path.join(MODS_DIR, `${modId}.guard`);
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
+        return res.status(404).send('Mod package file not yet uploaded by creator.');
     }
 
     const downloads = loadJson(DOWNLOADS_FILE, []);
