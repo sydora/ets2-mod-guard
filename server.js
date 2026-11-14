@@ -35,7 +35,7 @@ const PREDEFINED_CATEGORIES = [
 
 const PREDEFINED_MODS = [
     // 1. IBS MODS (8)
-    { modId: "ibs_volvo_9600", title: "Volvo 9600", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "ibs_volvo_9600", title: "Volvo 9600", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1hnf_CM1iGjZL3RUC59bOVA72no5WMql4/view?usp=sharing", fileSizeBytes: 1004390991, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "ibs_volvo_9600_skin", title: "Volvo 9600 Skin (Paid)", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibs_volvo_9600_bundle", title: "Volvo 9600 + Skin Bundle", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1hnf_CM1iGjZL3RUC59bOVA72no5WMql4/view?usp=sharing", fileSizeBytes: 1004390991, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "ibs_mercedes_shd_2436", title: "Mercedes SHD 2436 (15 m)", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
@@ -45,33 +45,36 @@ const PREDEFINED_MODS = [
     { modId: "ibs_prakash_celeste", title: "Prakash Celeste Mod Pack", categoryId: "cat_ibs", category: "IBS MODS", categoryOrder: 1, author: "IBS", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
 
     // 2. LYNX MODS (4)
-    { modId: "lynx_scania_metrolink", title: "Scania Metrolink", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "lynx_veera_pack", title: "Lynx Veera Pack", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "lynx_scania_metrolink", title: "Scania Metrolink", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1dZUfcSFx4IBeRHhDIZAjM6ax87BpIr4l/view?usp=sharing", fileSizeBytes: 726422530, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
+    { modId: "lynx_veera_pack", title: "Lynx Veera Pack", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1Mo2mvhG4V0c-iL2-4r-G77q_gI8c9x7v/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "lynx_prakash_vega", title: "Prakash Vega", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1E-5-lomniM1DJTYz_DjMpfbx2G4__eqx/view?usp=sharing", fileSizeBytes: 685826681, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
-    { modId: "lynx_volvo_9400", title: "Volvo 9400 Semi Sleeper", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "lynx_volvo_9400", title: "Volvo 9400 Semi Sleeper", categoryId: "cat_lynx", category: "LYNX MODS", categoryOrder: 2, author: "Lynx", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1ycRcZWZRaGCYqDQJ--mltiwmMpoCZ_mo/view?usp=sharing", fileSizeBytes: 457457353, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
 
     // 3. RVK GARAGE (2)
-    { modId: "rvk_al_37_8_cabin_a", title: "Ashok Leyland 37/8 Series Cabin A", categoryId: "cat_rvk", category: "RVK GARAGE", categoryOrder: 3, author: "RVK Garage", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "rvk_brand_series_16w", title: "Brand RVK Series (Tata/high-roof) – 16 wheeler", categoryId: "cat_rvk", category: "RVK GARAGE", categoryOrder: 3, author: "RVK Garage", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "rvk_al_37_8_cabin_a", title: "Ashok Leyland 37/8 Series Cabin A", categoryId: "cat_rvk", category: "RVK GARAGE", categoryOrder: 3, author: "RVK Garage", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1b7VK-Wx8ejE7Y_8c_2gW_yA_9K-rB11c/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
+    { modId: "rvk_brand_series_16w", title: "Brand RVK Series (Tata/high-roof) – 16 wheeler", categoryId: "cat_rvk", category: "RVK GARAGE", categoryOrder: 3, author: "RVK Garage", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/17Fdb8oLT8W_1-b68pTzZz9oO2vQy_3sT/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
 
     // 4. AJIN MODS (2)
-    { modId: "ajin_prakash_capella", title: "Prakash Capella Seater", categoryId: "cat_ajin", category: "AJIN MODS", categoryOrder: 4, author: "Ajin Mods", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "ajin_tn_al_trucks", title: "Ajin TN Ashok Leyland Trucks Pack (4 bodies)", categoryId: "cat_ajin", category: "AJIN MODS", categoryOrder: 4, author: "Ajin Mods", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "ajin_prakash_capella", title: "Prakash Capella Seater", categoryId: "cat_ajin", category: "AJIN MODS", categoryOrder: 4, author: "Ajin Mods", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1Ltru4a7mCApCwpZaUS0YmSKSWWk6CSK_/view?usp=sharing", fileSizeBytes: 1417527755, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
+    { modId: "ajin_tn_al_trucks", title: "Ajin TN Ashok Leyland Trucks Pack (4 bodies)", categoryId: "cat_ajin", category: "AJIN MODS", categoryOrder: 4, author: "Ajin Mods", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1-9NS5TzUrX_1A8r0bFpUe-9O3rTz_4uY/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
 
     // 5. IBGC GAMING (5)
     { modId: "ibgc_tnstc_non_ac_yellow", title: "TNSTC Non-AC Bus – Yellow", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "ibgc_economy_sakthi", title: "Economy AC Sakthi Coach Cabin", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "ibgc_economy_sakthi", title: "Economy AC Sakthi Coach Cabin", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1eokDVgzTni-9p2Qv7Y_8kO2x_3sTz-4u/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "ibgc_al_viking_sf_fp", title: "Eicher / Ashok Leyland Viking SF/FP", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibgc_al_viking_dlx_exp", title: "Ashok Leyland Viking DLX/EXP", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
     { modId: "ibgc_eicher_20_15", title: "Eicher 20.15 DLX/EXP", categoryId: "cat_ibgc", category: "IBGC GAMING", categoryOrder: 5, author: "IBGC Gaming", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
 
     // 6. MAPS (2)
-    { modId: "map_ct_chennai_trivandrum", title: "CT Map – Chennai to Trivandrum", categoryId: "cat_maps", category: "MAPS", categoryOrder: 6, author: "Map Team", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+    { modId: "map_ct_chennai_trivandrum", title: "CT Map – Chennai to Trivandrum", categoryId: "cat_maps", category: "MAPS", categoryOrder: 6, author: "Map Team", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1SGEPRh4RFn-8p_yA1K-rB11cO2vQy_3s/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true },
     { modId: "map_ntob_nellore_bangalore", title: "NTOB Map – Nellore to Bangalore", categoryId: "cat_maps", category: "MAPS", categoryOrder: 6, author: "Map Team", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
 
     // 7. GRAPHICS (2)
     { modId: "gfx_snowymoon_lifetime", title: "Snowymoon (Lifetime Key)", categoryId: "cat_graphics", category: "GRAPHICS", categoryOrder: 7, author: "Snowymoon", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
-    { modId: "gfx_jbx", title: "JBX", categoryId: "cat_graphics", category: "GRAPHICS", categoryOrder: 7, author: "JBX", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" }
+    { modId: "gfx_jbx", title: "JBX", categoryId: "cat_graphics", category: "GRAPHICS", categoryOrder: 7, author: "JBX", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+" },
+
+    // 8. TRAFFIC
+    { modId: "np_indian_truck_traffic", title: "NP Indian Truck Traffic Pack", categoryId: "cat_rvk", category: "RVK GARAGE", categoryOrder: 3, author: "INDOeuroGAMER", version: "1.0.0", ets2Compatibility: "1.48 - 1.53+", googleDriveUrl: "https://drive.google.com/file/d/1xr7Olf153pTpmAVvefZBxgQpfIYt42Ty/view?usp=sharing", fileSizeBytes: 524288000, uploadStatus: "UPLOADED", packageStatus: "Google Drive Cloud Package", status: "Published", isPublished: true }
 ];
 
 function getCategories() {
@@ -157,7 +160,32 @@ function getCatalog() {
 if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true });
 if (!fs.existsSync(MODS_DIR)) fs.mkdirSync(MODS_DIR, { recursive: true });
 
+const PUBLIC_DIR = path.join(__dirname, 'public');
+if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+
 app.use(express.json());
+app.use('/public', express.static(PUBLIC_DIR));
+
+// Direct Download Endpoints for Buyers (No Google Drive virus warnings)
+app.get('/download/client', (req, res) => {
+    const zipPath = path.join(PUBLIC_DIR, 'ETS2ModClient_v2.1.zip');
+    if (fs.existsSync(zipPath)) return res.download(zipPath, 'ETS2ModClient_v2.1.zip');
+    const exePath = path.join(PUBLIC_DIR, 'ETS2ModClient.exe');
+    if (fs.existsSync(exePath)) return res.download(exePath, 'ETS2ModClient.exe');
+    res.status(404).send('Client download not found.');
+});
+
+app.get('/download/client.zip', (req, res) => {
+    const zipPath = path.join(PUBLIC_DIR, 'ETS2ModClient_v2.1.zip');
+    if (fs.existsSync(zipPath)) return res.download(zipPath, 'ETS2ModClient_v2.1.zip');
+    res.status(404).send('File not found.');
+});
+
+app.get('/download/client.exe', (req, res) => {
+    const exePath = path.join(PUBLIC_DIR, 'ETS2ModClient.exe');
+    if (fs.existsSync(exePath)) return res.download(exePath, 'ETS2ModClient.exe');
+    res.status(404).send('File not found.');
+});
 
 // Enable CORS for Internet & Web dashboard access
 app.use((req, res, next) => {
@@ -262,13 +290,13 @@ const PREDEFINED_LICENSES = [
         licenseKey: "INDO-2026-CUST1001-094595",
         customerName: "kalyyan",
         email: "cust-1001@buyer.com",
-        allowedModIds: ["ibs_volvo_9600_bundle", "ajin_prakash_capella"],
+        allowedModIds: ["ibgc_tnstc_non_ac_yellow"],
         maxHwidBinds: 1,
         boundHwid: null,
         status: "Active",
         isActive: true,
         createdAt: "2026-11-13T06:13:20.000Z",
-        updatedAt: "2026-11-13T09:48:51.000Z",
+        updatedAt: "2026-11-14T07:45:00.000Z",
         lastLoginAt: null,
         downloadCount: 0
     },
@@ -277,13 +305,43 @@ const PREDEFINED_LICENSES = [
         licenseKey: "INDO-2026-CUST1002-563DE3",
         customerName: "Yaswanth YTH",
         email: "cust-1002@buyer.com",
-        allowedModIds: ["lynx_prakash_vega"],
+        allowedModIds: ["lynx_prakash_vega", "lynx_veera_pack"],
         maxHwidBinds: 1,
         boundHwid: null,
         status: "Active",
         isActive: true,
         createdAt: "2026-11-13T06:31:40.000Z",
-        updatedAt: "2026-11-13T06:31:40.000Z",
+        updatedAt: "2026-11-14T07:45:00.000Z",
+        lastLoginAt: null,
+        downloadCount: 0
+    },
+    {
+        customerId: "CUST-1003",
+        licenseKey: "INDO-2026-CUST1003-849C60",
+        customerName: "DARKDEVILYT",
+        email: "cust-1003@buyer.com",
+        allowedModIds: [],
+        maxHwidBinds: 1,
+        boundHwid: null,
+        status: "Active",
+        isActive: true,
+        createdAt: "2026-11-13T14:18:30.000Z",
+        updatedAt: "2026-11-14T07:45:00.000Z",
+        lastLoginAt: null,
+        downloadCount: 0
+    },
+    {
+        customerId: "CUST-1004",
+        licenseKey: "INDO-2026-CUST1004-73E6C1",
+        customerName: "Susha",
+        email: "cust-1004@buyer.com",
+        allowedModIds: ["ibgc_economy_sakthi"],
+        maxHwidBinds: 1,
+        boundHwid: null,
+        status: "Active",
+        isActive: true,
+        createdAt: "2026-11-13T15:00:00.000Z",
+        updatedAt: "2026-11-14T07:45:00.000Z",
         lastLoginAt: null,
         downloadCount: 0
     }
@@ -1196,22 +1254,15 @@ app.post('/api/buyer/login', (req, res) => {
     }
 
     // Filter purchased mods for this buyer (NO PRICES)
+    // The backend is the single source of truth for purchased entitlements.
+    // Strictly ONLY return mods that are explicitly authorized in the customer's allowedModIds!
+    // If allowedModIds is empty, the customer has purchased 0 mods! Never return unpurchased/catalogue mods!
     const catalog = getCatalog();
     const categories = getCategories();
     const allowed = (lic.allowedModIds || []).map(x => (x || '').toString().toLowerCase());
     const buyerMods = catalog.filter(m => {
         const modIdLower = (m.modId || '').toLowerCase();
-        // 1. If mod is explicitly assigned to this customer in their license: ALWAYS deliver it!
-        if (allowed.length > 0 && allowed.includes(modIdLower)) {
-            return true;
-        }
-        // 2. If all-mods license (allowed is empty): deliver all published active mods that have uploaded files or drive links
-        if (allowed.length === 0) {
-            const isPub = m.isPublished !== false && (m.status || 'Published').toLowerCase() === 'published';
-            const isAvailable = m.uploadStatus === 'UPLOADED' && (m.fileSizeBytes > 0 || (m.googleDriveUrl && m.googleDriveUrl.trim()));
-            return isPub && isAvailable;
-        }
-        return false;
+        return allowed.includes(modIdLower);
     });
 
     res.json({
@@ -1239,8 +1290,8 @@ app.get('/api/buyer/download', (req, res) => {
     if (!lic.isActive) return res.status(403).send('License is inactive.');
 
     if (lic.boundHwid && hwid && lic.boundHwid.toLowerCase() !== hwid.toLowerCase()) return res.status(403).send('HWID Mismatch');
-    const allowed = lic.allowedModIds || [];
-    if (allowed.length > 0 && !allowed.map(x => x.toLowerCase()).includes(modId.toLowerCase())) return res.status(403).send('You have not purchased this mod.');
+    const allowed = (lic.allowedModIds || []).map(x => (x || '').toString().toLowerCase());
+    if (!allowed.includes(modId.toLowerCase())) return res.status(403).send('You have not purchased this mod.');
 
     const catalog = getCatalog();
     const modMeta = catalog.find(m => m.modId.toLowerCase() === modId.toLowerCase());
